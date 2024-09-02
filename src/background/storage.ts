@@ -18,15 +18,17 @@ export async function getActiveBar(workspaceId?: string) {
     }
     const customDirectoryId = await getCustomDirectoryId();
     let activeBar = await get<BookmarksBar>(STORED_BAR_KEY);
-
+    console.log('activeBar(id =', activeBar?.id, 'title =', activeBar?.title, ')');
     // If an active bar is set update it in case it is outdated
     if (activeBar !== undefined) {
-        activeBar = await findFolder(activeBar.id, customDirectoryId);
+        activeBar = await findFolder(activeBar.title, customDirectoryId);
     }
+    console.log('activeBarFolder =', activeBar);
 
     // If no active bar is set ...
     if (activeBar === undefined) {
         const customBars = await getCustomBars();
+        console.log('customBars =', customBars);
         // ... return the first custom bar if custom bars exist
         if (customBars.length > 0) {
             await set(STORED_BAR_KEY, customBars[0]);
@@ -141,6 +143,7 @@ async function getActiveWorkspaceId() {
 async function get<T>(key: string): Promise<T | undefined> {
     const localData: Record<string, T> = await chrome.storage.sync.get(key);
 
+    console.log('Got key:', key, 'with value:', localData[key]);
     if (Object.keys(localData).length === 0 || localData[key] === undefined) {
         return undefined;
     }
@@ -156,6 +159,7 @@ async function get<T>(key: string): Promise<T | undefined> {
 async function set<T>(key: string, value: T) {
     const localData: Record<string, T> = {};
     localData[key] = value;
+    console.log('Setting key:', key, 'with value:', value);
     await chrome.storage.sync.set(localData);
 }
 

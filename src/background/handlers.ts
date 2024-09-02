@@ -72,7 +72,7 @@ export const handleWorkspaceSwitch = async (_info: chrome.tabs.TabActiveInfo) =>
     const lastWorkspaceId = await getLastWorkspaceId();
     const currentBar = await getActiveBar();
     const lastActiveBar = await getActiveBar(lastWorkspaceId);
-    await exchangeBars(currentBar.id, lastActiveBar.id);
+    await exchangeBars(currentBar.title, lastActiveBar.title);
     await updateLastWorkspaceId();
 };
 
@@ -111,21 +111,23 @@ export const handleShortcut = debounce(async (command: string) => {
 
     if (/^switch-to-[1-9]$/u.test(command)) {
         const index = Number(command.split('-')[2]) - 1;
-        const activatedId = bookmarksBars[index] ? bookmarksBars[index].id : bookmarksBars[0].id;
-        await exchangeBars(activatedId);
+        const activatedTitle = bookmarksBars[index] ? bookmarksBars[index].title : bookmarksBars[0].title;
+        await exchangeBars(activatedTitle);
         return;
     }
 
-    let activatedId;
+    let activatedTitle;
     const activeBarIndex = bookmarksBars.map((b) => b.id).indexOf(activeBar.id);
     if (getNext) {
-        activatedId = bookmarksBars[activeBarIndex + 1] ? bookmarksBars[activeBarIndex + 1].id : bookmarksBars[0].id;
+        activatedTitle = bookmarksBars[activeBarIndex + 1]
+            ? bookmarksBars[activeBarIndex + 1].title
+            : bookmarksBars[0].title;
     } else {
-        activatedId = bookmarksBars[activeBarIndex - 1]
-            ? bookmarksBars[activeBarIndex - 1].id
-            : bookmarksBars.at(-1)?.id;
+        activatedTitle = bookmarksBars[activeBarIndex - 1]
+            ? bookmarksBars[activeBarIndex - 1].title
+            : bookmarksBars.at(-1)?.title;
     }
-    await exchangeBars(activatedId ?? '');
+    await exchangeBars(activatedTitle ?? '');
 }, SHORTCUT_DELAY);
 
 /**

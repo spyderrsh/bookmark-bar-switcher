@@ -25,13 +25,18 @@ export async function install() {
  * bookmarks from the current bookmark bar to "Other Bookmarks" and the bookmarks
  * from the selected bookmarks bar to the "Bookmarks Bar".
  *
- * @param activatedId - The id of the bar that should become the active bookmarks bar.
- * @param deactivatedId - The id of the bar that should be moved back to its folder. (optional)
+ * @param activatedTitle - The id of the bar that should become the active bookmarks bar.
+ * @param deactivatedTitle - The id of the bar that should be moved back to its folder. (optional)
  */
-export async function exchangeBars(activatedId: string, deactivatedId?: string) {
+export async function exchangeBars(activatedTitle: string, deactivatedTitle?: string) {
+    console.log('starting exchangeBars');
     const bookmarkBarId = await getBookmarksBarId();
-    const deactivatedBar = await (deactivatedId === undefined ? getActiveBar() : findFolder(deactivatedId));
-    const activatedBar = await findFolder(activatedId);
+    const deactivatedBar = await (deactivatedTitle === undefined ? getActiveBar() : findFolder(deactivatedTitle));
+    const activatedBar = await findFolder(activatedTitle);
+
+    console.log('bookmarkBarId', bookmarkBarId);
+    console.log('deactivatedBar', deactivatedBar);
+    console.log('activatedBar', activatedBar);
 
     if (activatedBar === undefined || deactivatedBar === undefined || activatedBar.id === deactivatedBar.id) {
         return;

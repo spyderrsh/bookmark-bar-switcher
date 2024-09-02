@@ -1,4 +1,5 @@
 import { type BookmarksBar } from 'bookmarks';
+import { c } from 'node_modules/vite/dist/node/types.d-aGj9QkWt.js';
 
 const CUSTOM_DIRECTORY = 'Bookmark Bars';
 const CHROME_OTHER_BOOKMARKS_INDEX = 1;
@@ -11,16 +12,15 @@ const OPERA_OTHER_BOOKMARKS_INDEX = 7;
  * @param parentId - The parent id.
  * @returns The bookmarks folder.
  */
-export async function findFolder(id: string, parentId?: string) {
+export async function findFolder(title: string, parentId?: string) {
     try {
-        const bookmarks = await chrome.bookmarks.get(id);
-        return bookmarks
-            .filter((bookmark) => !bookmark.url)
-            .filter((bookmark) => !parentId || bookmark.parentId === parentId)
-            .map((bookmark) => bookmark as BookmarksBar)
-            .at(0);
+        const bookmarks = await getCustomBars();
+        return bookmarks.filter((bookmark) => bookmark.title === title).at(0);
         // return undefined in case no bookmarks were found
-    } catch {}
+    } catch (err) {
+        console.error(`Bookmark with title ${title} not found.`);
+        console.error(err);
+    }
 }
 
 /**
