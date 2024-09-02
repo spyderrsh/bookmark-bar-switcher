@@ -29,7 +29,7 @@ export async function install() {
  * @param deactivatedTitle - The id of the bar that should be moved back to its folder. (optional)
  */
 export async function exchangeBars(activatedTitle: string, deactivatedTitle?: string) {
-    console.log('starting exchangeBars');
+    console.log('starting exchangeBars with title =', activatedTitle, 'and deactivatedTitle =', deactivatedTitle);
     const bookmarkBarId = await getBookmarksBarId();
     const deactivatedBar = await (deactivatedTitle === undefined ? getActiveBar() : findFolder(deactivatedTitle));
     const activatedBar = await findFolder(activatedTitle);

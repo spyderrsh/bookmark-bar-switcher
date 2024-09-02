@@ -12,7 +12,7 @@
         v-if="!bar.isEdited"
         :title="bar.title"
         :is-active="bar.isActive"
-        @exchange="exchange(bar.id)"
+        @exchange="exchange(bar.title)"
         @edit="customBars[index].isEdited = true"
       />
       <Edit
