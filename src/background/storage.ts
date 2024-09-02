@@ -139,7 +139,7 @@ async function getActiveWorkspaceId() {
  * @returns The entry.
  */
 async function get<T>(key: string): Promise<T | undefined> {
-    const localData: Record<string, T> = await chrome.storage.local.get(key);
+    const localData: Record<string, T> = await chrome.storage.sync.get(key);
 
     if (Object.keys(localData).length === 0 || localData[key] === undefined) {
         return undefined;
@@ -156,7 +156,7 @@ async function get<T>(key: string): Promise<T | undefined> {
 async function set<T>(key: string, value: T) {
     const localData: Record<string, T> = {};
     localData[key] = value;
-    await chrome.storage.local.set(localData);
+    await chrome.storage.sync.set(localData);
 }
 
 async function createDefaultBar() {
