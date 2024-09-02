@@ -52,7 +52,6 @@ import Bar from '~/components/Bar.vue';
 import Edit from '~/components/Edit.vue';
 import { getActiveBar } from '~/background/storage.ts';
 import { getCustomBars } from '~/background/util.ts';
-import { waitForActiveIdleState } from '~/background/handlers';
 
 let activeBar = await getActiveBar();
 
@@ -86,7 +85,6 @@ export default defineComponent({
         }) as BookmarksBarPopup,
     );
     chrome.storage.onChanged.addListener(async () => {
-      await waitForActiveIdleState();
       activeBar = await getActiveBar();
       this.customBars.forEach((bar: BookmarksBarPopup) => {
         bar.isActive = activeBar.id === bar.id;
@@ -115,7 +113,6 @@ export default defineComponent({
       };
     },
     async exchange(id: string) {
-      await waitForActiveIdleState();
       await exchangeBars(id);
       this.customBars.forEach((bar: BookmarksBarPopup) => {
         bar.isActive = bar.id === id;
