@@ -1,5 +1,6 @@
 import {
     handleChange,
+    handleIdle,
     handleMove,
     handleRemove,
     handleShortcut,
@@ -14,7 +15,11 @@ chrome.bookmarks.onChanged.addListener(handleChange);
 chrome.bookmarks.onRemoved.addListener(handleRemove);
 chrome.bookmarks.onMoved.addListener(handleMove);
 chrome.commands.onCommand.addListener(handleShortcut);
+chrome.idle.onStateChanged.addListener(handleIdle);
 
+// Initialize idle detection
+// Set the idle detection interval to 15 seconds
+chrome.idle.setDetectionInterval(15);
 if (isOperaBrowser()) {
     // Saves windowId, so Workspace don't switch on new opened windows
     chrome.windows.onCreated.addListener(handleWindowCreate);

@@ -51,7 +51,7 @@ export function getManifest(): chrome.runtime.ManifestV3 {
         name: pkg.displayName,
         version: pkg.version,
         manifest_version: 3,
-        permissions: ['bookmarks', 'storage'],
+        permissions: ['bookmarks', 'storage', 'idle'],
         ...manifest,
     };
 }

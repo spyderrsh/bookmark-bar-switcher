@@ -2,8 +2,11 @@ import { exchangeBars, install } from '~/background/service.ts';
 import { findFolder, getCustomDirectoryId } from '~/background/util.ts';
 import { getActiveBar, getLastWorkspaceId, updateLastWorkspaceId } from '~/background/storage.ts';
 
+type IdleState = chrome.idle.IdleState;
+
 const SHORTCUT_DELAY = 100;
 let MAIN_WINDOW_ID: number | undefined;
+let currentIdleState: IdleState = 'active';
 
 /**
  * Handle changes to bookmarks.
@@ -12,6 +15,7 @@ let MAIN_WINDOW_ID: number | undefined;
  * @param info - Info about the changed bookmark.
  */
 export const handleChange = async (_id: string, info: { title: string; url?: string }) => {
+    await waitForActiveIdleState();
     if (info.url !== undefined) {
         return;
     }
@@ -24,6 +28,7 @@ export const handleChange = async (_id: string, info: { title: string; url?: str
  * @param id - The bookmark id.
  */
 export const handleMove = async (id: string) => {
+    await waitForActiveIdleState();
     const bookmark = await findFolder(id);
     if (bookmark === undefined) {
         return;
@@ -38,6 +43,7 @@ export const handleMove = async (id: string) => {
  * @param removeInfo - Info about the removed bookmark.
  */
 export const handleRemove = async (id: string, removeInfo: { node: { title: string; url?: string } }) => {
+    await waitForActiveIdleState();
     if (removeInfo.node.url !== undefined) {
         return;
     }
@@ -58,6 +64,7 @@ export const handleRemove = async (id: string, removeInfo: { node: { title: stri
  * @param _info - Info about the activated tab.
  */
 export const handleWorkspaceSwitch = async (_info: chrome.tabs.TabActiveInfo) => {
+    await waitForActiveIdleState();
     if (MAIN_WINDOW_ID !== _info.windowId) {
         console.log('Tab is not in mainWindow. Do not chaning Bar.', MAIN_WINDOW_ID, _info.windowId);
         return;
@@ -91,6 +98,7 @@ export const handleWindowCreate = (window: chrome.windows.Window) => {
  * @param command - The shortcut command to be handled.
  */
 export const handleShortcut = debounce(async (command: string) => {
+    await waitForActiveIdleState();
     const getNext = command === 'next-bar';
     const customDirectoryId = await getCustomDirectoryId();
     const activeBar = await getActiveBar();
@@ -120,6 +128,32 @@ export const handleShortcut = debounce(async (command: string) => {
     await exchangeBars(activatedId ?? '');
 }, SHORTCUT_DELAY);
 
+/**
+ * Handle idle state changes.
+ */
+export const handleIdle = (idleState: IdleState) => {
+    currentIdleState = idleState;
+    console.log('Idle state changed to:', idleState);
+};
+
+/**
+ * Block until the idle state is active.
+ *
+ * @returns - A promise that resolves when the idle state is active.
+ */
+export function waitForActiveIdleState(): Promise<void> {
+    return new Promise((resolve) => {
+        const checkIdleState = () => {
+            if (currentIdleState === 'active') {
+                resolve();
+            } else {
+                // Check every second
+                setTimeout(checkIdleState, 1000);
+            }
+        };
+        checkIdleState();
+    });
+}
 /**
  * Introduce a delay between shortcuts to avoid exceeding the MAX_SUSTAINED_WRITE_OPERATIONS_PER_MINUTE.
  *
